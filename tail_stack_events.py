@@ -53,10 +53,27 @@ def get_nested_stacks(stack_name_or_arn, depth=None, status_check=None):
     return stacks
 
 
-def get_stack_events(stack, limit):
-    # TODO: keep track of the last found event and go further back if we don't find the previous event
+def get_stack_events(stack, limit=5, _mem={}):
     try:
-        return list(stack.events.limit(limit))
+        pages = stack.events.pages()
+        events = list(next(pages))
+        if not events:
+            if stack.stack_id in _mem:
+                del _mem[stack.stack_id]
+            return []
+        events.sort(key=lambda e: e.timestamp)
+        if stack.stack_id in _mem:
+            while events[0].timestamp > _mem[stack.stack_id]:
+                more = list(next(pages))
+                if not more:
+                    break
+                more.sort(key=lambda e: e.timestamp)
+                events = more + events
+        _mem[stack.stack_id] = events[-1].timestamp
+        if stack.stack_id not in _mem:
+            return events[-limit:]
+        return events
+
     except botocore.exceptions.ClientError:
         pass
         # traceback.print_exc()
