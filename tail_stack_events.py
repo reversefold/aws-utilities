@@ -24,10 +24,18 @@ import boto3
 import colorama
 import docopt
 import eventlet.greenpool
+import tenacity
 
 
 STACK_TYPE = 'AWS::CloudFormation::Stack'
 ELLIPSIS = u'\u2026'
+
+
+retry = tenacity.retry(
+    wait=(
+        tenacity.wait_random_exponential(multiplier=1, min=0.1, max=10)
+    ),
+)
 
 
 class Column(object):
@@ -36,6 +44,8 @@ class Column(object):
         self.max_length = ml
 
 
+# TODO: make the retries per-api-call rather than on this function to reduce repeated API calls
+@retry
 def get_nested_stacks(stack_name_or_arn, depth=None, status_check=None):
     cf = boto3.resource('cloudformation')
     stack = cf.Stack(stack_name_or_arn)
@@ -53,7 +63,10 @@ def get_nested_stacks(stack_name_or_arn, depth=None, status_check=None):
     return stacks
 
 
+# TODO: make the retries per-api-call rather than on this function to reduce repeated API calls
+@retry
 def get_stack_events(stack, limit=5, _mem={}):
+    # TODO: preload _mem with the timestamp of the first event in the parent stack that caused us to add the stack
     try:
         pages = stack.events.pages()
         events = list(next(pages))
