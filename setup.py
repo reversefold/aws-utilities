@@ -1,7 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-VERSION = '0.1.1'
+VERSION = '0.1.2'
 
 DESCRIPTION = 'Utilities for use with aws.'
 
@@ -24,6 +24,7 @@ setup(
     maintainer_email='papercrane@reversefold.com',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
+    long_description_content_type='text/markdown',
     packages=find_packages(),
     install_requires=[
         'ansiwrap',
