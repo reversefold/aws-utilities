@@ -59,7 +59,13 @@ def get_nested_stacks(stack_name_or_arn, depth=None, status_check=None):
         if sub.resource_type != STACK_TYPE:
             continue
         if status_check is not None and status_check(sub.resource_status):
-            stacks.update(get_nested_stacks(sub.physical_resource_id, depth - 1 if depth is not None else None, status_check))
+            stacks.update(
+                get_nested_stacks(
+                    sub.physical_resource_id,
+                    depth - 1 if depth is not None else None,
+                    status_check
+                )
+            )
     return stacks
 
 
@@ -255,7 +261,8 @@ def main():
             events = get_events(stacks)
             new_events = []
             for event in events:
-                # Don't re-ouput events and don't output events older than the latest event shown (not doing this means we can get events from the previous stack updates, which we don't want).
+                # Don't re-ouput events and don't output events older than the latest event shown (not doing this means
+                # we can get events from the previous stack updates, which we don't want).
                 if event.id in outputted or event.timestamp < last_event_timestamp:
                     continue
                 new_events.append(event)
