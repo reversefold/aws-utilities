@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 """Usage:
-    tail_stack_events.py [--follow] [--profile=<profile>] [--number=<n>] <stack>
+    tail_stack_events.py [--follow] [--profile=<profile>] [--number=<n>] [--depth=<d>] <stack>
 
 Options:
-    -f --follow                    Follow the stack events and output new ones as they are received.
-    -p <p> --profile=<profile>     The aws profile to use.
-    -n <n> --number=<n>            The number of lines to display. [default: 10]
-    <stack>                        The top-level stack to get events for.
+    -f --follow                     Follow the stack events and output new ones as they are received.
+    -p <p> --profile=<profile>      The aws profile to use.
+    -n <n> --number=<n>             The number of lines to display. [default: 10]
+    -d <d> --depth=<d>              The maximum depth to get events for. Use -1 for unlimited depth. [default: 2]
+    <stack>                         The top-level stack to get events for.
 
 """
 import collections
@@ -165,7 +166,7 @@ def output_events(columns, events):
         ]))
 
 
-def update_stacks_from_events(stacks, events, main_stack):
+def update_stacks_from_events(stacks, events, main_stack, max_depth=None):
     cf = boto3.resource('cloudformation')
     to_remove = set()
     to_add = set()
@@ -194,7 +195,13 @@ def update_stacks_from_events(stacks, events, main_stack):
             # else:
             #     print('Final stack COMPLETE')
     for stack_id in to_add:
-        if stack_id not in stacks:
+        if (
+            stack_id not in stacks
+            and (
+                max_depth is None
+                or len(stack_id.split('-')) - 1 <= max_depth
+            )
+        ):
             stack = cf.Stack(stack_id)
             # try:
             #     get_stack_events(stack, 1)
@@ -241,7 +248,11 @@ def main():
     outputted = set(e.id for e in events)
     update_columns(columns, events[-num:])
 
-    update_stacks_from_events(stacks, events, main_stack)
+    max_depth = int(args['--depth'])
+    if max_depth == -1:
+        max_depth = None
+
+    update_stacks_from_events(stacks, events, main_stack, max_depth=max_depth)
 
     output_events(columns, [headers])
     output_events(columns, events[-num:])
@@ -270,7 +281,7 @@ def main():
                 continue
             last_event_timestamp = new_events[-1].timestamp
 
-            update_stacks_from_events(stacks, events, main_stack)
+            update_stacks_from_events(stacks, events, main_stack, max_depth=max_depth)
 
             # TODO: If an event for a stack comes in that isn't in stacks, add it to stacks.
             # TODO: Remove a stack from stacks if there is an "end" event? DELETE_COMPLETE or UPDATE_COMPLETE perhaps?
