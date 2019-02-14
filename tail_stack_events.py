@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 """Usage:
-    tail_stack_events.py [--follow] [--profile=<profile>] [--number=<n>] [--depth=<d>] <stack>
+    tail_stack_events.py [--follow] [--number=<n>] [--depth=<d>] [--max-column-length=<x>] [--profile=<profile>] <stack>
+    tail_stack_events.py [--postmortem] [--find-last-failure] [--show-all-failures] [--max-column-length=<x>] [--profile=<profile>] <stack>
 
 Options:
     -f --follow                     Follow the stack events and output new ones as they are received.
     -p <p> --profile=<profile>      The aws profile to use.
     -n <n> --number=<n>             The number of lines to display. [default: 10]
     -d <d> --depth=<d>              The maximum depth to get events for. Use -1 for unlimited depth. [default: 2]
+    -m --postmortem                 Find the failures in the last stack update.
+    --find-last-failure             Search for the last rollback and show the failures from that update.
+                                    By default --postmortem only looks at the latest stack update.
+    -x <x> --max-col-length=<x>     The maximum columns length for tabular output.
+                                    Defaults to 200 for postmortem, 40 otherwise.
+    --show-all-failures             Show all failures for the stack update, not just the one that caused the rollback.
     <stack>                         The top-level stack to get events for.
 
 """
@@ -45,14 +52,20 @@ class Column(object):
         self.max_length = ml
 
 
-# TODO: make the retries per-api-call rather than on this function to reduce repeated API calls
 @retry
-def get_nested_stacks(stack_name_or_arn, depth=None, status_check=None):
+def get_stack(stack_name_or_arn):
     cf = boto3.resource('cloudformation')
     stack = cf.Stack(stack_name_or_arn)
     # Switch to the ARN if a stack name was passed in
     if stack.stack_id != stack_name_or_arn:
         stack = cf.Stack(stack.stack_id)
+    return stack
+
+
+# TODO: make the retries per-api-call rather than on this function to reduce repeated API calls
+@retry
+def get_nested_stacks(stack_name_or_arn, depth=None, status_check=None):
+    stack = get_stack(stack_name_or_arn)
     stacks = {stack.stack_id: stack}
     if depth == 0:
         return stacks
@@ -70,33 +83,26 @@ def get_nested_stacks(stack_name_or_arn, depth=None, status_check=None):
     return stacks
 
 
-# TODO: make the retries per-api-call rather than on this function to reduce repeated API calls
-@retry
 def get_stack_events(stack, limit=5, _mem={}):
     # TODO: preload _mem with the timestamp of the first event in the parent stack that caused us to add the stack
-    try:
-        pages = stack.events.pages()
-        events = list(next(pages))
-        if not events:
-            if stack.stack_id in _mem:
-                del _mem[stack.stack_id]
-            return []
-        events.sort(key=lambda e: e.timestamp)
+    pages = stack.events.pages()
+    events = next_page(pages)
+    if not events:
         if stack.stack_id in _mem:
-            while events[0].timestamp > _mem[stack.stack_id]:
-                more = list(next(pages))
-                if not more:
-                    break
-                more.sort(key=lambda e: e.timestamp)
-                events = more + events
-        _mem[stack.stack_id] = events[-1].timestamp
-        if stack.stack_id not in _mem:
-            return events[-limit:]
-        return events
-
-    except botocore.exceptions.ClientError:
-        pass
-        # traceback.print_exc()
+            del _mem[stack.stack_id]
+        return []
+    events.sort(key=lambda e: e.timestamp)
+    if stack.stack_id in _mem:
+        while events[0].timestamp > _mem[stack.stack_id]:
+            more = list(next(pages))
+            if not more:
+                break
+            more.sort(key=lambda e: e.timestamp)
+            events = more + events
+    _mem[stack.stack_id] = events[-1].timestamp
+    if stack.stack_id not in _mem:
+        return events[-limit:]
+    return events
 
 
 def get_events(stacks, limit=5):
@@ -144,10 +150,11 @@ def format_column(column_name, column, value):
             color = colorama.Fore.WHITE
         text = '%s%s%s' % (color, value, colorama.Style.RESET_ALL)
     if ansiwrap.ansilen(text) > column.max_length:
+        half_length = (column.max_length - 1) / 2.0
         output_text = '%s%s%s' % (
-            text[:(column.max_length - 1) // 2],
+            text[:math.floor(half_length)],
             ELLIPSIS,
-            text[-math.ceil((column.max_length - 1) / 2.0):],
+            text[-math.ceil(half_length):],
         )
     else:
         output_text = text
@@ -210,47 +217,13 @@ def update_stacks_from_events(stacks, events, main_stack, max_depth=None):
             stacks[stack_id] = stack
 
 
-def main():
-    args = docopt.docopt(__doc__)
-    if args['--profile']:
-        boto3.setup_default_session(profile_name=args['--profile'])
-    num = int(args['--number'])
-
-    columns = collections.OrderedDict([
-        ('timestamp', Column(0, 40)),
-        ('stack_name', Column(0, 40)),
-        ('resource_type', Column(0, 40)),
-        ('logical_resource_id', Column(0, 40)),
-        ('resource_status', Column(0, 40)),
-        ('resource_status_reason', Column(0, 40)),
-    ])
-    headers = collections.namedtuple('Headers', columns.keys())(*[
-        colorama.Style.BRIGHT + t + colorama.Style.RESET_ALL
-        for t in [
-            'Timestamp',
-            'Stack Name',
-            'Resource Type',
-            'Resource ID',
-            'Status',
-            'Reason',
-        ]
-    ])
-    update_columns(columns, [headers])
-
-    cf = boto3.resource('cloudformation')
-
-    print('Getting stacks...')
-    main_stack = cf.Stack(args['<stack>'])
+def do_tail_stack_events(main_stack, num, columns, headers, max_depth, follow):
     stacks = get_nested_stacks(main_stack.stack_id, status_check=lambda status: 'IN_PROGRESS' in status)
 
     print('Getting events...')
     events = get_events(stacks, limit=num)
     outputted = set(e.id for e in events)
     update_columns(columns, events[-num:])
-
-    max_depth = int(args['--depth'])
-    if max_depth == -1:
-        max_depth = None
 
     update_stacks_from_events(stacks, events, main_stack, max_depth=max_depth)
 
@@ -259,7 +232,7 @@ def main():
 
     last_event_timestamp = events[-1].timestamp
 
-    if not args['--follow']:
+    if not follow:
         return
 
     # TODO: Keep track of last updated timestamp for each stack and don't ask for more events
@@ -298,6 +271,152 @@ def main():
                 outputted.add(event.id)
         except Exception:
             traceback.print_exc()
+
+
+@retry
+def next_page(pages):
+    try:
+        return list(next(pages))
+    except botocore.exceptions.ClientError:
+        return None
+        # traceback.print_exc()
+    except StopIteration:
+        return None
+
+
+def get_stack_failure_events(stack, columns, headers, start_func=None):
+    pages = stack.events.pages()
+    events = []
+    end = False
+    ready = start_func is None
+    while not end:
+        page = next_page(pages)
+        # update_columns(columns, page)
+        # output_events(columns, [headers])
+        # output_events(columns, page)
+        # print(page)
+        # print(stack.stack_id)
+        if not page:
+            break
+        for event in page:
+            events.append(event)
+            if not ready:
+                if start_func(event):
+                    ready = True
+                continue
+            elif (
+                event.resource_type == STACK_TYPE
+                and event.resource_status.upper().endswith('COMPLETE')
+                and event.resource_status.upper() != 'UPDATE_ROLLBACK_COMPLETE'
+                and event.physical_resource_id == stack.stack_id
+            ):
+                end = True
+                break
+    # update_columns(columns, events)
+    # output_events(columns, [headers])
+    # output_events(columns, events)
+    events = sorted(
+        (event for event in events if 'FAIL' in event.resource_status.upper()),
+        key=lambda e: e.timestamp
+    )
+    # update_columns(columns, events)
+    # output_events(columns, [headers])
+    # output_events(columns, events)
+    return events
+
+
+def do_postmortem(stack, columns, headers, search_for_failure=False, show_all_failures=False):
+    print('Getting events...')
+    start_func = (
+        (
+            lambda event: (
+                event.resource_type == STACK_TYPE
+                and event.resource_status.upper() == 'UPDATE_ROLLBACK_COMPLETE'
+                and event.physical_resource_id == stack.stack_id
+            )
+        )
+        if search_for_failure else None
+    )
+    top_level = True
+    events = []
+    while True:
+        new_events = get_stack_failure_events(
+            stack,
+            columns,
+            headers,
+            start_func=start_func
+        )
+        if not new_events:
+            if top_level:
+                print('The last stack update appears to have succeeded')
+                sys.exit(1)
+            else:
+                print('No failure events found in nested stack.')
+                break
+        if not show_all_failures:
+            new_events = [new_events[0]]
+        events.extend(new_events)
+        fail_event = new_events[0]
+        if (
+            fail_event.resource_type != STACK_TYPE
+            or 'failed to update' not in fail_event.resource_status_reason.lower()
+        ):
+            break
+        start_func = lambda event: event.timestamp <= fail_event.timestamp
+        stack = get_stack(fail_event.physical_resource_id)
+
+    events.sort(key=lambda e: e.timestamp, reverse=show_all_failures)
+    update_columns(columns, events)
+    output_events(columns, [headers])
+    output_events(columns, events)
+
+
+def main():
+    args = docopt.docopt(__doc__)
+    if args['--profile']:
+        boto3.setup_default_session(profile_name=args['--profile'])
+    postmortem = args['--postmortem']
+
+    max_column_length = args['--max-column-length']
+    if max_column_length is None:
+        max_column_length = 200 if postmortem else 40
+
+    columns = collections.OrderedDict([
+        ('timestamp', Column(0, max_column_length)),
+        ('stack_name', Column(0, max_column_length)),
+        # ('stack_id', Column(0, max_column_length)),
+        ('resource_type', Column(0, max_column_length)),
+        ('logical_resource_id', Column(0, max_column_length)),
+        # ('physical_resource_id', Column(0, max_column_length)),
+        ('resource_status', Column(0, max_column_length)),
+        ('resource_status_reason', Column(0, max_column_length)),
+    ])
+    headers = collections.namedtuple('Headers', columns.keys())(*[
+        colorama.Style.BRIGHT + t + colorama.Style.RESET_ALL
+        for t in [
+            'Timestamp',
+            'Stack Name',
+            # 'Stack ID',
+            'Resource Type',
+            'Logical Resource ID',
+            # 'Physical Resource ID',
+            'Status',
+            'Reason',
+        ]
+    ])
+    update_columns(columns, [headers])
+
+    print('Getting stack...')
+    main_stack = get_stack(args['<stack>'])
+
+    if postmortem:
+        do_postmortem(main_stack, columns, headers, search_for_failure=args['--find-last-failure'], show_all_failures=args['--show-all-failures'])
+    else:
+        num = int(args['--number'])
+        max_depth = int(args['--depth'])
+        if max_depth == -1:
+            max_depth = None
+        do_tail_stack_events(main_stack, num, columns, headers, max_depth, args['--follow'])
 
 
 if __name__ == '__main__':
