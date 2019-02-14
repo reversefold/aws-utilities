@@ -24,7 +24,9 @@ Inspired by [cw](https://github.com/lucagrulla/cw).
 
 Get the last `n` events for a CloudFormation stack and all of its nested stacks and follow the events in realtime. This utility can give you a view into all of the events happening in any size CloudFormation stack, even if it has multiple levels of nested stacks. When this script is started up it finds all nested stacks and follows their events as well if the stack is in any status which includes IN_PROGRESS. When following stack events, nested stacks will be dynamically added to and removed from the set of stacks being queried for events as nested stacks go into the various `IN_PROGRESS` and `COMPLETE` states. This lets you get a complete picture of what is going on while also making the minimum number of API calls.
 
-Inspired by [tail-stack-events](https://github.com/tmont/tail-stack-events) and [cfn-tail](https://github.com/taimos/cfn-tail).
+In postmortem mode this script will find the events that caused the last stack update to fail. It will follow nested stack failures until it finds the specific resource that caused the failure.
+
+Originally inspired by [tail-stack-events](https://github.com/tmont/tail-stack-events) and [cfn-tail](https://github.com/taimos/cfn-tail).
 
 
 ## aws_switch.py
