@@ -4,7 +4,7 @@ import platform
 import setuptools
 
 
-VERSION = '0.4.0'
+VERSION = '0.4.1'
 
 DESCRIPTION = 'Utilities for use with aws.'
 
