@@ -152,9 +152,9 @@ def format_column(column_name, column, value):
     if ansiwrap.ansilen(text) > column.max_length:
         half_length = (column.max_length - 1) / 2.0
         output_text = '%s%s%s' % (
-            text[:math.floor(half_length)],
+            text[:int(math.floor(half_length))],
             ELLIPSIS,
-            text[-math.ceil(half_length):],
+            text[-int(math.ceil(half_length)):],
         )
     else:
         output_text = text
