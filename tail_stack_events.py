@@ -15,7 +15,6 @@ Options:
                                     Defaults to 200 for postmortem, 40 otherwise.
     --show-all-failures             Show all failures for the stack update, not just the one that caused the rollback.
     <stack>                         The top-level stack to get events for.
-
 """
 import collections
 import math
@@ -289,6 +288,7 @@ def get_stack_failure_events(stack, columns, headers, start_func=None):
     events = []
     end = False
     ready = start_func is None
+    first = True
     while not end:
         page = next_page(pages)
         # update_columns(columns, page)
@@ -307,11 +307,12 @@ def get_stack_failure_events(stack, columns, headers, start_func=None):
             elif (
                 event.resource_type == STACK_TYPE
                 and event.resource_status.upper().endswith('COMPLETE')
-                and event.resource_status.upper() != 'UPDATE_ROLLBACK_COMPLETE'
                 and event.physical_resource_id == stack.stack_id
+                and (not first or event.resource_status.upper() != 'UPDATE_ROLLBACK_COMPLETE')
             ):
                 end = True
                 break
+            first = False
     # update_columns(columns, events)
     # output_events(columns, [headers])
     # output_events(columns, events)
@@ -351,7 +352,7 @@ def do_postmortem(stack, columns, headers, search_for_failure=False, show_all_fa
                 print('The last stack update appears to have succeeded')
                 sys.exit(1)
             else:
-                print('No failure events found in nested stack.')
+                print('No failure events found in nested stack %r.' % (stack,))
                 break
         if not show_all_failures:
             new_events = [new_events[0]]
