@@ -360,7 +360,7 @@ def do_postmortem(stack, columns, headers, search_for_failure=False, show_all_fa
         fail_event = new_events[0]
         if (
             fail_event.resource_type != STACK_TYPE
-            or 'failed to update' not in fail_event.resource_status_reason.lower()
+            or 'failed to' not in fail_event.resource_status_reason.lower()
         ):
             break
         start_func = lambda event: event.timestamp <= fail_event.timestamp
