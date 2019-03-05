@@ -349,7 +349,7 @@ def do_postmortem(stack, columns, headers, search_for_failure=False, show_all_fa
         )
         if not new_events:
             if top_level:
-                print('The last stack update appears to have succeeded')
+                print('The last stack update succeeded or there is an ongoing update which has no failures yet.')
                 sys.exit(1)
             else:
                 print('No failure events found in nested stack %r.' % (stack,))
