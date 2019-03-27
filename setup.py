@@ -4,7 +4,7 @@ import platform
 import setuptools
 
 
-VERSION = '0.4.3'
+VERSION = '0.5.0'
 
 DESCRIPTION = 'Utilities for use with aws.'
 
@@ -46,6 +46,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=REQUIREMENTS,
     scripts=[
+        'pending_stack_resources.py',
         'tail_stack_events.py',
         'tail_cloudwatch_logs.py',
         'wait_for_stack_complete.py',
