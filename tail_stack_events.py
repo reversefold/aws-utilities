@@ -17,6 +17,7 @@ Options:
     <stack>                         The top-level stack to get events for.
 """
 import collections
+import logging
 import math
 import sys
 import time
@@ -37,12 +38,23 @@ import tenacity
 STACK_TYPE = 'AWS::CloudFormation::Stack'
 ELLIPSIS = u'\u2026'
 
+LOG = logging.getLogger(__name__)
 
-retry = tenacity.retry(
-    wait=(
-        tenacity.wait_random_exponential(multiplier=1, min=0.1, max=10)
-    ),
-)
+
+def retry(func):
+    tretry = tenacity.retry(
+        wait=(
+            tenacity.wait_random_exponential(multiplier=1, min=0.1, max=10)
+        ),
+        after=tenacity.after_log(LOG, logging.WARNING),
+    )
+    def log_exc(*a, **k):
+        try:
+            return func(*a, **k)
+        except Exception:
+            LOG.exception('Exception calling %r' % (func,))
+            raise
+    return tretry(log_exc)
 
 
 class Column(object):
@@ -190,6 +202,9 @@ def update_stacks_from_events(stacks, events, main_stack, max_depth=None):
             else:
                 if event.physical_resource_id in to_remove:
                     to_remove.remove(event.physical_resource_id)
+                if not event.physical_resource_id:
+                    LOG.debug('stack event has an empty physical_resource_id: %r', event)
+                    continue
                 to_add.add(event.physical_resource_id)
                 # if event.physical_resource_id not in stacks:
                 #     print('Found new substack %s' % (event.physical_resource_id,))
@@ -209,6 +224,8 @@ def update_stacks_from_events(stacks, events, main_stack, max_depth=None):
             )
         ):
             stack = cf.Stack(stack_id)
+            # Force loading with a retry as it can incur a potentially-failing API call
+            retry(lambda: stack.stack_id)()
             # try:
             #     get_stack_events(stack, 1)
             # except botocore.exceptions.ClientError:
