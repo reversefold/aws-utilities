@@ -4,7 +4,7 @@ import platform
 import setuptools
 
 
-VERSION = '0.5.0'
+VERSION = '0.5.1'
 
 DESCRIPTION = 'Utilities for use with aws.'
 
@@ -50,6 +50,7 @@ setuptools.setup(
         'tail_stack_events.py',
         'tail_cloudwatch_logs.py',
         'wait_for_stack_complete.py',
+        'watch_resource.py',
     ],
     url='https://github.com/reversefold/aws-utilities',
 )
