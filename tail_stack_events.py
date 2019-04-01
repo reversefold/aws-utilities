@@ -11,7 +11,7 @@ Options:
     -m --postmortem                 Find the failures in the last stack update.
     --find-last-failure             Search for the last rollback and show the failures from that update.
                                     By default --postmortem only looks at the latest stack update.
-    -x <x> --max-col-length=<x>     The maximum columns length for tabular output.
+    -x <x> --max-column-length=<x>  The maximum column length for tabular output.
                                     Defaults to 200 for postmortem, 40 otherwise.
     --show-all-failures             Show all failures for the stack update, not just the one that caused the rollback.
     <stack>                         The top-level stack to get events for.
@@ -398,6 +398,7 @@ def main():
     max_column_length = args['--max-column-length']
     if max_column_length is None:
         max_column_length = 200 if postmortem else 40
+    max_column_length = int(max_column_length)
 
     columns = collections.OrderedDict([
         ('timestamp', Column(0, max_column_length)),
