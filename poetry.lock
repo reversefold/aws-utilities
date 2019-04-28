@@ -225,11 +225,11 @@ category = "main"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 name = "urllib3"
 optional = false
-python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
-version = "1.23"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
+version = "1.24.2"
 
 [metadata]
-content-hash = "a30d3069dbfbb0cfaa24248e0ea030253d210411174bbb1abf3cec9981df6fbb"
+content-hash = "936fa58460044c3427dfe36aed44d06a879f98104c0d7d42c6f26e83df8d507f"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -255,4 +255,4 @@ s3transfer = ["7b9ad3213bff7d357f888e0fab5101b56fa1a0548ee77d121c3a3dbfbef4cb2e"
 six = ["3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c", "d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"]
 tenacity = ["a0c3c5f7ae0c33f5556c775ca059c12d6fd8ab7121613a713e8b7d649908571b", "b87c1934daa0b2ccc7db153c37b8bf91d12f165936ade8628e7b962b92dc7705"]
 textwrap3 = ["5008eeebdb236f6303dcd68f18b856d355f6197511d952ba74bc75e40e0c3414", "bf5f4c40faf2a9ff00a9e0791fed5da7415481054cef45bb4a3cfb1f69044ae0"]
-urllib3 = ["a68ac5e15e76e7e5dd2b8f94007233e01effe3e50e8daddf69acfd81cb686baf", "b5725a0bd4ba422ab0e66e89e030c806576753ea3ee08554382c14e685d117b5"]
+urllib3 = ["4c291ca23bbb55c76518905869ef34bdd5f0e46af7afe6861e8375643ffee1a0", "9a247273df709c4fedb38c711e44292304f73f39ab01beda9f6b9fc375669ac3"]
