@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "aws-utilities"
-version = "0.3.0"
+version = "1.0.0"
 description = ""
 readme = "README.md"
 authors = ["Justin Patrin <papercrane@reversefold.com>"]
@@ -20,7 +20,7 @@ packages = [
 "watch_resource" = "aws_utilities.watch_resource:main"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.6"
 ansiwrap = "^0.8.4"
 boto3 = "^1.9"
 colorama = "^0.4.1"
@@ -28,7 +28,7 @@ docopt = "^0.6.2"
 ec2-metadata = "^2.0"
 eventlet = "^0.24.1"
 tenacity = "^5.0"
-urllib3 = "<1.24"
+urllib3 = "~1.23"
 
 [tool.poetry.dev-dependencies]
 

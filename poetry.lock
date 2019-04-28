@@ -229,8 +229,8 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
 version = "1.23"
 
 [metadata]
-content-hash = "38abb0e59a7e0267d56c6a9dc9874ba47ab72c9489a4ec723581d7d27d6b7e5f"
-python-versions = "^3.7"
+content-hash = "a30d3069dbfbb0cfaa24248e0ea030253d210411174bbb1abf3cec9981df6fbb"
+python-versions = "^3.6"
 
 [metadata.hashes]
 ansiwrap = ["7b053567c88e1ad9eed030d3ac41b722125e4c1271c8a99ade797faff1f49fb1", "ca0c740734cde59bf919f8ff2c386f74f9a369818cdc60efe94893d01ea8d9b7"]
