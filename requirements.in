@@ -1,9 +1,0 @@
-ansiwrap
-boto3
-colorama
-docopt
-ec2-metadata
-eventlet
-functools32; python_version < "3.2"
-tenacity
-urllib3

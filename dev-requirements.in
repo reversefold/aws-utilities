@@ -1,4 +1,0 @@
--r build-requirements.txt
--r requirements.txt
-pip-tools
-virtualenv
