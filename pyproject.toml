@@ -10,17 +10,14 @@ readme = "README.md"
 authors = ["Justin Patrin <papercrane@reversefold.com>"]
 homepage = "https://github.com/reversefold/aws-utilities"
 packages = [
-    {include="tail_cloudwatch_logs.py"},
-    {include="tail_stack_events.py"},
-    {include="wait_for_stack_complete.py"},
-    {include="watch_resource.py"},
+    {include="aws_utilities"},
 ]
 
 [tool.poetry.scripts]
-"tail_cloudwatch_logs.py" = "tail_cloudwatch_logs:main"
-"tail_stack_events.py" = "tail_stack_events:main"
-"wait_for_stack_complete.py" = "wait_for_stack_complete:main"
-"watch_resource.py" = "watch_resource:main"
+"tail_cloudwatch_logs" = "aws_utilities.tail_cloudwatch_logs:main"
+"tail_stack_events" = "aws_utilities.tail_stack_events:main"
+"wait_for_stack_complete" = "aws_utilities.wait_for_stack_complete:main"
+"watch_resource" = "aws_utilities.watch_resource:main"
 
 [tool.poetry.dependencies]
 python = "^3.7"
