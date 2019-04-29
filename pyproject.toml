@@ -5,7 +5,7 @@ build-backend = "poetry.masonry.api"
 [tool.poetry]
 name = "aws-utilities"
 version = "1.0.0"
-description = ""
+description = "Utilities for use with aws."
 readme = "README.md"
 authors = ["Justin Patrin <papercrane@reversefold.com>"]
 homepage = "https://github.com/reversefold/aws-utilities"
