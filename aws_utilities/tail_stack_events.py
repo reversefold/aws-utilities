@@ -24,6 +24,7 @@ import time
 import traceback
 
 import eventlet
+
 eventlet.monkey_patch()
 
 import ansiwrap
@@ -35,25 +36,25 @@ import eventlet.greenpool
 import tenacity
 
 
-STACK_TYPE = 'AWS::CloudFormation::Stack'
-ELLIPSIS = u'\u2026'
+STACK_TYPE = "AWS::CloudFormation::Stack"
+ELLIPSIS = u"\u2026"
 
 LOG = logging.getLogger(__name__)
 
 
 def retry(func):
     tretry = tenacity.retry(
-        wait=(
-            tenacity.wait_random_exponential(multiplier=1, min=0.1, max=10)
-        ),
+        wait=(tenacity.wait_random_exponential(multiplier=1, min=0.1, max=10)),
         after=tenacity.after_log(LOG, logging.WARNING),
     )
+
     def log_exc(*a, **k):
         try:
             return func(*a, **k)
         except Exception:
-            LOG.exception('Exception calling %r' % (func,))
+            LOG.exception("Exception calling %r" % (func,))
             raise
+
     return tretry(log_exc)
 
 
@@ -65,7 +66,7 @@ class Column(object):
 
 @retry
 def get_stack(stack_name_or_arn):
-    cf = boto3.resource('cloudformation')
+    cf = boto3.resource("cloudformation")
     stack = cf.Stack(stack_name_or_arn)
     # Switch to the ARN if a stack name was passed in
     if stack.stack_id != stack_name_or_arn:
@@ -88,7 +89,7 @@ def get_nested_stacks(stack_name_or_arn, depth=None, status_check=None):
                 get_nested_stacks(
                     sub.physical_resource_id,
                     depth - 1 if depth is not None else None,
-                    status_check
+                    status_check,
                 )
             )
     return stacks
@@ -122,10 +123,7 @@ def get_events(stacks, limit=5):
     remove_stacks = set()
     for stack_id, events in zip(
         list(stacks.keys()),
-        pool.starmap(
-            get_stack_events,
-            ((s, limit) for s in list(stacks.values()))
-        )
+        pool.starmap(get_stack_events, ((s, limit) for s in list(stacks.values()))),
     ):
         if not events:
             remove_stacks.add(stack_id)
@@ -140,59 +138,62 @@ def get_events(stacks, limit=5):
 def update_columns(columns, events):
     for event in events:
         for column in columns.keys():
-            columns[column].max_value_length = max(columns[column].max_value_length, len(str(getattr(event, column))))
+            columns[column].max_value_length = max(
+                columns[column].max_value_length, len(str(getattr(event, column)))
+            )
 
 
 def format_column(column_name, column, value):
     text = str(value)
-    if column_name == 'resource_status':
+    if column_name == "resource_status":
         uvalue = value.upper()
-        if 'FAIL' in uvalue:
+        if "FAIL" in uvalue:
             color = colorama.Fore.RED
-        elif 'ROLLBACK' in uvalue:
+        elif "ROLLBACK" in uvalue:
             color = colorama.Fore.YELLOW
-        elif 'IN_PROGRESS' in uvalue:
+        elif "IN_PROGRESS" in uvalue:
             color = colorama.Fore.BLUE
-        elif uvalue == 'DELETE_COMPLETE':
+        elif uvalue == "DELETE_COMPLETE":
             color = colorama.Fore.LIGHTBLACK_EX
-        elif 'COMPLETE' in uvalue:
+        elif "COMPLETE" in uvalue:
             color = colorama.Fore.GREEN
         else:
             color = colorama.Fore.WHITE
-        text = '%s%s%s' % (color, value, colorama.Style.RESET_ALL)
+        text = "%s%s%s" % (color, value, colorama.Style.RESET_ALL)
     if ansiwrap.ansilen(text) > column.max_length:
         half_length = (column.max_length - 1) / 2.0
-        output_text = '%s%s%s' % (
-            text[:int(math.floor(half_length))],
+        output_text = "%s%s%s" % (
+            text[: int(math.floor(half_length))],
             ELLIPSIS,
-            text[-int(math.ceil(half_length)):],
+            text[-int(math.ceil(half_length)) :],
         )
     else:
         output_text = text
-    padding = ' ' * max(0, min(column.max_value_length, column.max_length) - ansiwrap.ansilen(output_text))
-    return '%s%s' % (
-        padding,
-        output_text,
+    padding = " " * max(
+        0,
+        min(column.max_value_length, column.max_length) - ansiwrap.ansilen(output_text),
     )
+    return "%s%s" % (padding, output_text)
 
 
 def output_events(columns, events):
     for e in events:
-        fmt = '  '.join('%s' for _ in columns.values())
-        print(fmt % tuple([
-            format_column(n, c, getattr(e, n)) for n, c in columns.items()
-        ]))
+        fmt = "  ".join("%s" for _ in columns.values())
+        print(
+            fmt
+            % tuple([format_column(n, c, getattr(e, n)) for n, c in columns.items()])
+        )
 
 
 def update_stacks_from_events(stacks, events, main_stack, max_depth=None):
-    cf = boto3.resource('cloudformation')
+    cf = boto3.resource("cloudformation")
     to_remove = set()
     to_add = set()
 
     # NOTE: Assuming that events are in proper order here
     for event in events:
         if event.resource_type == STACK_TYPE:
-            if event.resource_status.endswith('COMPLETE'):
+            if event.resource_status.endswith("COMPLETE"):
                 # print('Stack %s COMPLETE' % (event.physical_resource_id,))
                 if event.physical_resource_id in to_add:
                     to_add.remove(event.physical_resource_id)
@@ -203,7 +204,9 @@ def update_stacks_from_events(stacks, events, main_stack, max_depth=None):
                 if event.physical_resource_id in to_remove:
                     to_remove.remove(event.physical_resource_id)
                 if not event.physical_resource_id:
-                    LOG.debug('stack event has an empty physical_resource_id: %r', event)
+                    LOG.debug(
+                        "stack event has an empty physical_resource_id: %r", event
+                    )
                     continue
                 to_add.add(event.physical_resource_id)
                 # if event.physical_resource_id not in stacks:
@@ -216,12 +219,8 @@ def update_stacks_from_events(stacks, events, main_stack, max_depth=None):
             # else:
             #     print('Final stack COMPLETE')
     for stack_id in to_add:
-        if (
-            stack_id not in stacks
-            and (
-                max_depth is None
-                or len(stack_id.split('-')) - 1 <= max_depth
-            )
+        if stack_id not in stacks and (
+            max_depth is None or len(stack_id.split("-")) - 1 <= max_depth
         ):
             stack = cf.Stack(stack_id)
             # Force loading with a retry as it can incur a potentially-failing API call
@@ -234,9 +233,11 @@ def update_stacks_from_events(stacks, events, main_stack, max_depth=None):
 
 
 def do_tail_stack_events(main_stack, num, columns, headers, max_depth, follow):
-    stacks = get_nested_stacks(main_stack.stack_id, status_check=lambda status: 'IN_PROGRESS' in status)
+    stacks = get_nested_stacks(
+        main_stack.stack_id, status_check=lambda status: "IN_PROGRESS" in status
+    )
 
-    print('Getting events...')
+    print("Getting events...")
     events = get_events(stacks, limit=num)
     outputted = set(e.id for e in events)
     update_columns(columns, events[-num:])
@@ -323,9 +324,12 @@ def get_stack_failure_events(stack, columns, headers, start_func=None):
                 continue
             elif (
                 event.resource_type == STACK_TYPE
-                and event.resource_status.upper().endswith('COMPLETE')
+                and event.resource_status.upper().endswith("COMPLETE")
                 and event.physical_resource_id == stack.stack_id
-                and (not first or event.resource_status.upper() != 'UPDATE_ROLLBACK_COMPLETE')
+                and (
+                    not first
+                    or event.resource_status.upper() != "UPDATE_ROLLBACK_COMPLETE"
+                )
             ):
                 end = True
                 break
@@ -334,8 +338,8 @@ def get_stack_failure_events(stack, columns, headers, start_func=None):
     # output_events(columns, [headers])
     # output_events(columns, events)
     events = sorted(
-        (event for event in events if 'FAIL' in event.resource_status.upper()),
-        key=lambda e: e.timestamp
+        (event for event in events if "FAIL" in event.resource_status.upper()),
+        key=lambda e: e.timestamp,
     )
     # update_columns(columns, events)
     # output_events(columns, [headers])
@@ -343,33 +347,35 @@ def get_stack_failure_events(stack, columns, headers, start_func=None):
     return events
 
 
-def do_postmortem(stack, columns, headers, search_for_failure=False, show_all_failures=False):
-    print('Getting events...')
+def do_postmortem(
+    stack, columns, headers, search_for_failure=False, show_all_failures=False
+):
+    print("Getting events...")
     start_func = (
         (
             lambda event: (
                 event.resource_type == STACK_TYPE
-                and event.resource_status.upper() == 'UPDATE_ROLLBACK_COMPLETE'
+                and event.resource_status.upper() == "UPDATE_ROLLBACK_COMPLETE"
                 and event.physical_resource_id == stack.stack_id
             )
         )
-        if search_for_failure else None
+        if search_for_failure
+        else None
     )
     top_level = True
     events = []
     while True:
         new_events = get_stack_failure_events(
-            stack,
-            columns,
-            headers,
-            start_func=start_func
+            stack, columns, headers, start_func=start_func
         )
         if not new_events:
             if top_level:
-                print('The last stack update succeeded or there is an ongoing update which has no failures yet.')
+                print(
+                    "The last stack update succeeded or there is an ongoing update which has no failures yet."
+                )
                 sys.exit(1)
             else:
-                print('No failure events found in nested stack %r.' % (stack,))
+                print("No failure events found in nested stack %r." % (stack,))
                 break
         if not show_all_failures:
             new_events = [new_events[0]]
@@ -377,7 +383,7 @@ def do_postmortem(stack, columns, headers, search_for_failure=False, show_all_fa
         fail_event = new_events[0]
         if (
             fail_event.resource_type != STACK_TYPE
-            or 'failed to' not in fail_event.resource_status_reason.lower()
+            or "failed to" not in fail_event.resource_status_reason.lower()
         ):
             break
         start_func = lambda event: event.timestamp <= fail_event.timestamp
@@ -391,54 +397,66 @@ def do_postmortem(stack, columns, headers, search_for_failure=False, show_all_fa
 
 def main():
     args = docopt.docopt(__doc__)
-    if args['--profile']:
-        boto3.setup_default_session(profile_name=args['--profile'])
-    postmortem = args['--postmortem']
+    if args["--profile"]:
+        boto3.setup_default_session(profile_name=args["--profile"])
+    postmortem = args["--postmortem"]
 
-    max_column_length = args['--max-column-length']
+    max_column_length = args["--max-column-length"]
     if max_column_length is None:
         max_column_length = 200 if postmortem else 40
     max_column_length = int(max_column_length)
 
-    columns = collections.OrderedDict([
-        ('timestamp', Column(0, max_column_length)),
-        ('stack_name', Column(0, max_column_length)),
-        # ('stack_id', Column(0, max_column_length)),
-        ('resource_type', Column(0, max_column_length)),
-        ('logical_resource_id', Column(0, max_column_length)),
-        # ('physical_resource_id', Column(0, max_column_length)),
-        ('resource_status', Column(0, max_column_length)),
-        ('resource_status_reason', Column(0, max_column_length)),
-    ])
-    headers = collections.namedtuple('Headers', columns.keys())(*[
-        colorama.Style.BRIGHT + t + colorama.Style.RESET_ALL
-        for t in [
-            'Timestamp',
-            'Stack Name',
-            # 'Stack ID',
-            'Resource Type',
-            'Logical Resource ID',
-            # 'Physical Resource ID',
-            'Status',
-            'Reason',
+    columns = collections.OrderedDict(
+        [
+            ("timestamp", Column(0, max_column_length)),
+            ("stack_name", Column(0, max_column_length)),
+            # ('stack_id', Column(0, max_column_length)),
+            ("resource_type", Column(0, max_column_length)),
+            ("logical_resource_id", Column(0, max_column_length)),
+            # ('physical_resource_id', Column(0, max_column_length)),
+            ("resource_status", Column(0, max_column_length)),
+            ("resource_status_reason", Column(0, max_column_length)),
         ]
-    ])
+    )
+    headers = collections.namedtuple("Headers", columns.keys())(
+        *[
+            colorama.Style.BRIGHT + t + colorama.Style.RESET_ALL
+            for t in [
+                "Timestamp",
+                "Stack Name",
+                # 'Stack ID',
+                "Resource Type",
+                "Logical Resource ID",
+                # 'Physical Resource ID',
+                "Status",
+                "Reason",
+            ]
+        ]
+    )
     update_columns(columns, [headers])
 
-    print('Getting stack...')
-    main_stack = get_stack(args['<stack>'])
+    print("Getting stack...")
+    main_stack = get_stack(args["<stack>"])
 
     if postmortem:
-        do_postmortem(main_stack, columns, headers, search_for_failure=args['--find-last-failure'], show_all_failures=args['--show-all-failures'])
+        do_postmortem(
+            main_stack,
+            columns,
+            headers,
+            search_for_failure=args["--find-last-failure"],
+            show_all_failures=args["--show-all-failures"],
+        )
     else:
-        num = int(args['--number'])
-        max_depth = int(args['--depth'])
+        num = int(args["--number"])
+        max_depth = int(args["--depth"])
         if max_depth == -1:
             max_depth = None
-        do_tail_stack_events(main_stack, num, columns, headers, max_depth, args['--follow'])
+        do_tail_stack_events(
+            main_stack, num, columns, headers, max_depth, args["--follow"]
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
