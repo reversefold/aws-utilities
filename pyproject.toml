@@ -9,6 +9,7 @@ description = "Utilities for use with aws."
 readme = "README.md"
 authors = ["Justin Patrin <papercrane@reversefold.com>"]
 homepage = "https://github.com/reversefold/aws-utilities"
+repository = "https://github.com/reversefold/aws-utilities.git"
 packages = [
     {include="aws_utilities"},
 ]
