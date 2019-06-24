@@ -140,8 +140,8 @@ def get_pending_resources(stack):
     for sub in stack.resource_summaries.all():
         if (
             "IN_PROGRESS" not in sub.resource_status
-            or "COMPLETE" in sub.resource_status
-        ):
+            and "FAILED" not in sub.resource_status
+        ) or "COMPLETE" in sub.resource_status:
             continue
         sub.short_stack_name = short_stack_name(sub.stack_name)
         pending_resources.append(sub)

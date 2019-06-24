@@ -15,10 +15,10 @@ description = "The AWS SDK for Python"
 name = "boto3"
 optional = false
 python-versions = "*"
-version = "1.9.137"
+version = "1.9.145"
 
 [package.dependencies]
-botocore = ">=1.12.137,<1.13.0"
+botocore = ">=1.12.145,<1.13.0"
 jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.2.0,<0.3.0"
 
@@ -28,7 +28,7 @@ description = "Low-level, data-driven core of boto 3."
 name = "botocore"
 optional = false
 python-versions = "*"
-version = "1.12.137"
+version = "1.12.145"
 
 [package.dependencies]
 docutils = ">=0.10"
@@ -226,7 +226,7 @@ description = "HTTP library with thread-safe connection pooling, file post, and 
 name = "urllib3"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
-version = "1.24.2"
+version = "1.24.3"
 
 [metadata]
 content-hash = "936fa58460044c3427dfe36aed44d06a879f98104c0d7d42c6f26e83df8d507f"
@@ -234,8 +234,8 @@ python-versions = "^3.6"
 
 [metadata.hashes]
 ansiwrap = ["7b053567c88e1ad9eed030d3ac41b722125e4c1271c8a99ade797faff1f49fb1", "ca0c740734cde59bf919f8ff2c386f74f9a369818cdc60efe94893d01ea8d9b7"]
-boto3 = ["882cc4869b47b51dae4b4a900769e72171ff00e0b6bca644b2d7a7ad7378f324", "cd503a7e7a04f1c14d2801f9727159dfa88c393b4004e98940fa4aa205d920c8"]
-botocore = ["0d95794f6b1239c75e2c5f966221bcd4b68020fddb5676f757531eedbb612ed8", "3213cf48cf2ceee10fc3b93221f2cd1c38521cca7584f547d5c086213cc60f35"]
+boto3 = ["d8e77c1cfbc80bc183a1e407a2f8a025fccf3469cddd3fad7f08257a72398b4c", "e49c24ec0cefe1a61f8b9de61d46ec4c5c33c2ec7f0a1d9dca03973445238db5"]
+botocore = ["d83c012849f5ec5266361b68d5d88c713a1a58b8c4d748e28751724bf6ee2810", "d8f9431d373a7ecb1bf108fbd6136ce65e0e43e1bfb05cc1db820b8db4f095fc"]
 cached-property = ["3a026f1a54135677e7da5ce819b0c690f156f37976f3e30c5430740725203d7f", "9217a59f14a5682da7c4b8829deadbfc194ac22e9908ccf7c8820234e80a1504"]
 certifi = ["59b7658e26ca9c7339e00f8f4636cdfe59d34fa37b9b04f6f9e9926b3cece1a5", "b26104d6835d1f5e49452a26eb2ff87fe7090b89dfcaee5ea2212697e1e1d7ae"]
 chardet = ["84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae", "fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"]
@@ -255,4 +255,4 @@ s3transfer = ["7b9ad3213bff7d357f888e0fab5101b56fa1a0548ee77d121c3a3dbfbef4cb2e"
 six = ["3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c", "d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"]
 tenacity = ["a0c3c5f7ae0c33f5556c775ca059c12d6fd8ab7121613a713e8b7d649908571b", "b87c1934daa0b2ccc7db153c37b8bf91d12f165936ade8628e7b962b92dc7705"]
 textwrap3 = ["5008eeebdb236f6303dcd68f18b856d355f6197511d952ba74bc75e40e0c3414", "bf5f4c40faf2a9ff00a9e0791fed5da7415481054cef45bb4a3cfb1f69044ae0"]
-urllib3 = ["4c291ca23bbb55c76518905869ef34bdd5f0e46af7afe6861e8375643ffee1a0", "9a247273df709c4fedb38c711e44292304f73f39ab01beda9f6b9fc375669ac3"]
+urllib3 = ["2393a695cd12afedd0dcb26fe5d50d0cf248e5a66f75dbd89a3d4eb333a61af4", "a637e5fae88995b256e3409dc4d52c2e2e0ba32c42a6365fee8bbd2238de3cfb"]
