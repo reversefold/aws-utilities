@@ -15,10 +15,10 @@ description = "The AWS SDK for Python"
 name = "boto3"
 optional = false
 python-versions = "*"
-version = "1.9.178"
+version = "1.9.182"
 
 [package.dependencies]
-botocore = ">=1.12.178,<1.13.0"
+botocore = ">=1.12.182,<1.13.0"
 jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.2.0,<0.3.0"
 
@@ -28,7 +28,7 @@ description = "Low-level, data-driven core of boto 3."
 name = "botocore"
 optional = false
 python-versions = "*"
-version = "1.12.178"
+version = "1.12.182"
 
 [package.dependencies]
 docutils = ">=0.10"
@@ -234,8 +234,8 @@ python-versions = "^3.6"
 
 [metadata.hashes]
 ansiwrap = ["7b053567c88e1ad9eed030d3ac41b722125e4c1271c8a99ade797faff1f49fb1", "ca0c740734cde59bf919f8ff2c386f74f9a369818cdc60efe94893d01ea8d9b7"]
-boto3 = ["29cc84e5a12f6476f909710373ebc294f37217baf33b50b6acd7f67aee3bb384", "43ac443a5f11153a372ff54e8ed9e3a5a06059f047df533a86324a4ce2c1beff"]
-botocore = ["6b5a42cd6267467bf6a7d6ca9452385dd984b7b402b4a1e2a9c42e2a3d311edd", "a9515ee8511b73d7caeaa33e27c50ea1b85d722007aa870d8d7a424cc3f903da"]
+boto3 = ["050e855eb034df38e737c9598ef74610b7a2912bddb8db00a30596e3c75bd482", "af3992dc2e99b6d062dfc97afce93695058430b3ba7d59ce42b78e6ae09b8003"]
+botocore = ["1482cfa725bb1b678e02b006f15cb966ff5c3a20c2d9b0aff946056bd6baf152", "d1e556a130baca5719192031732c96c2455322369719ac4304ff5044b347d847"]
 cached-property = ["3a026f1a54135677e7da5ce819b0c690f156f37976f3e30c5430740725203d7f", "9217a59f14a5682da7c4b8829deadbfc194ac22e9908ccf7c8820234e80a1504"]
 certifi = ["046832c04d4e752f37383b628bc601a7ea7211496b4638f6514d0e5b9acc4939", "945e3ba63a0b9f577b1395204e13c3a231f9bc0223888be653286534e5873695"]
 chardet = ["84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae", "fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"]
