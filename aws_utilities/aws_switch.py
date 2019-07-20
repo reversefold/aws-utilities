@@ -17,7 +17,9 @@ for group in text.split("["):
     creds[name.strip()] = {
         k.strip(): v.strip()
         for k, v in (
-            line.split("=") for line in rest.strip().split("\n") if line and "=" in line
+            line.split("=", 1)
+            for line in rest.strip().split("\n")
+            if line and "=" in line
         )
     }
 
