@@ -105,7 +105,7 @@ description = "An easy interface to query the EC2 metadata API, with caching."
 name = "ec2-metadata"
 optional = false
 python-versions = ">=3.5"
-version = "2.1.0"
+version = "2.2.0"
 
 [package.dependencies]
 cached-property = "*"
@@ -241,8 +241,8 @@ secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "cer
 socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
 
 [metadata]
-content-hash = "56722228f9f05d924fa0c455483ad69fe56ddfc578f245cb4de889aa822e0bd0"
-python-versions = "^3.6"
+content-hash = "8dd252bd7d78e9dc0ebd66fb2b3bfa2ddcba77cf1579236b505b94cb74825bf4"
+python-versions = "^3.7"
 
 [metadata.files]
 ansiwrap = [
@@ -286,8 +286,8 @@ docutils = [
     {file = "docutils-0.15.2.tar.gz", hash = "sha256:a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"},
 ]
 ec2-metadata = [
-    {file = "ec2-metadata-2.1.0.tar.gz", hash = "sha256:42a4dcd50a98b06b148c8842678566f2cbff183b4ad747ee9fd370e786d43e48"},
-    {file = "ec2_metadata-2.1.0-py3-none-any.whl", hash = "sha256:e89e12c145f4cdeb6a693c1215ee067c55f8ced816c6d86b726a0a04e21485e8"},
+    {file = "ec2-metadata-2.2.0.tar.gz", hash = "sha256:9ac9ebe974b1f31f69a49e06e81654fe26c6448d4d5ced91478519028875bacd"},
+    {file = "ec2_metadata-2.2.0-py3-none-any.whl", hash = "sha256:609c70891766ff1cc51f12da777873741ebd11e6b1bf266eca86e691db63ff12"},
 ]
 eventlet = [
     {file = "eventlet-0.25.1-py2.py3-none-any.whl", hash = "sha256:658b1cd80937adc1a4860de2841e0528f64e2ca672885c4e00fc0e2217bde6b1"},
@@ -312,6 +312,9 @@ greenlet = [
     {file = "greenlet-0.4.15-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:8041e2de00e745c0e05a502d6e6db310db7faa7c979b3a5877123548a4c0b214"},
     {file = "greenlet-0.4.15-cp37-cp37m-win32.whl", hash = "sha256:81fcd96a275209ef117e9ec91f75c731fa18dcfd9ffaa1c0adbdaa3616a86043"},
     {file = "greenlet-0.4.15-cp37-cp37m-win_amd64.whl", hash = "sha256:37c9ba82bd82eb6a23c2e5acc03055c0e45697253b2393c9a50cef76a3985304"},
+    {file = "greenlet-0.4.15-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:e538b8dae561080b542b0f5af64d47ef859f22517f7eca617bb314e0e03fd7ef"},
+    {file = "greenlet-0.4.15-cp38-cp38-win32.whl", hash = "sha256:51155342eb4d6058a0ffcd98a798fe6ba21195517da97e15fca3db12ab201e6e"},
+    {file = "greenlet-0.4.15-cp38-cp38-win_amd64.whl", hash = "sha256:7457d685158522df483196b16ec648b28f8e847861adb01a55d41134e7734122"},
     {file = "greenlet-0.4.15.tar.gz", hash = "sha256:9416443e219356e3c31f1f918a91badf2e37acf297e2fa13d24d1cc2380f8fbc"},
 ]
 idna = [
