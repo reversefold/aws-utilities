@@ -117,7 +117,7 @@ description = "Highly concurrent networking library"
 name = "eventlet"
 optional = false
 python-versions = "*"
-version = "0.25.1"
+version = "0.25.2"
 
 [package.dependencies]
 dnspython = ">=1.15.0"
@@ -241,8 +241,8 @@ secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "cer
 socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
 
 [metadata]
-content-hash = "56722228f9f05d924fa0c455483ad69fe56ddfc578f245cb4de889aa822e0bd0"
-python-versions = "^3.6"
+content-hash = "8dd252bd7d78e9dc0ebd66fb2b3bfa2ddcba77cf1579236b505b94cb74825bf4"
+python-versions = "^3.7"
 
 [metadata.files]
 ansiwrap = [
@@ -290,8 +290,8 @@ ec2-metadata = [
     {file = "ec2_metadata-2.1.0-py3-none-any.whl", hash = "sha256:e89e12c145f4cdeb6a693c1215ee067c55f8ced816c6d86b726a0a04e21485e8"},
 ]
 eventlet = [
-    {file = "eventlet-0.25.1-py2.py3-none-any.whl", hash = "sha256:658b1cd80937adc1a4860de2841e0528f64e2ca672885c4e00fc0e2217bde6b1"},
-    {file = "eventlet-0.25.1.tar.gz", hash = "sha256:6c9c625af48424c4680d89314dbe45a76cc990cf002489f9469ff214b044ffc1"},
+    {file = "eventlet-0.25.2-py2.py3-none-any.whl", hash = "sha256:955f2cf538829bfcb7b3aa885ace40e8ae5965dcd5b876c384d0c5869702db1d"},
+    {file = "eventlet-0.25.2.tar.gz", hash = "sha256:4c8ab42c51bff55204fef43cff32616558bedbc7538d876bb6a96ce820c7f9ed"},
 ]
 greenlet = [
     {file = "greenlet-0.4.15-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:99a26afdb82ea83a265137a398f570402aa1f2b5dfb4ac3300c026931817b163"},
@@ -312,6 +312,9 @@ greenlet = [
     {file = "greenlet-0.4.15-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:8041e2de00e745c0e05a502d6e6db310db7faa7c979b3a5877123548a4c0b214"},
     {file = "greenlet-0.4.15-cp37-cp37m-win32.whl", hash = "sha256:81fcd96a275209ef117e9ec91f75c731fa18dcfd9ffaa1c0adbdaa3616a86043"},
     {file = "greenlet-0.4.15-cp37-cp37m-win_amd64.whl", hash = "sha256:37c9ba82bd82eb6a23c2e5acc03055c0e45697253b2393c9a50cef76a3985304"},
+    {file = "greenlet-0.4.15-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:e538b8dae561080b542b0f5af64d47ef859f22517f7eca617bb314e0e03fd7ef"},
+    {file = "greenlet-0.4.15-cp38-cp38-win32.whl", hash = "sha256:51155342eb4d6058a0ffcd98a798fe6ba21195517da97e15fca3db12ab201e6e"},
+    {file = "greenlet-0.4.15-cp38-cp38-win_amd64.whl", hash = "sha256:7457d685158522df483196b16ec648b28f8e847861adb01a55d41134e7734122"},
     {file = "greenlet-0.4.15.tar.gz", hash = "sha256:9416443e219356e3c31f1f918a91badf2e37acf297e2fa13d24d1cc2380f8fbc"},
 ]
 idna = [
